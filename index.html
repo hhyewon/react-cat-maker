@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>고양이 가라사대</title>
+</head>
+<style>
+  body {
+    text-align: center;
+  }
+
+  .main-card button {
+    position: relative;
+    left: -45px;
+    bottom: 15px;
+  }
+
+  .favorites {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  /* .favorites img {
+    width: 150px;
+  } */
+</style>
+
+<body>
+  <div id="app"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <script type="text/babel">
+    console.log("야옹");
+
+
+    const Title = (props) => {
+      <h1>{props.children}</h1>
+    }
+
+    const SubmitForm = () => {
+      <form>
+        <input type="text" name="name" placeholder="영어 대사를 입력해주세요" />
+        <button type="submit">생성</button>
+      </form>
+    }
+
+    const catItem = (
+      <li>
+        <img src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" />
+      </li>
+    );
+
+    function CatItem(props) {
+      return (
+        <li>
+          <img src={props.img} style={{ width: "150px" }} />
+        </li>
+      )
+    }
+
+    function Favorites() {
+      return (
+        <ul className="favorites">
+          <CatItem img="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" />
+          <CatItem img="https://cataas.com/cat/BxqL2EjFmtxDkAm2/says/inflearn" />
+        </ul>
+      )
+    }
+
+    const MainCard = (props) => {
+
+      // handel ~ Click << 리액트 관례
+      function handleHeartClick() {
+        console.log("dd")
+      }
+
+      function handleMouseOver() {
+
+      }
+
+      return (
+        <div className="main-card">
+          <img src={props.src} alt={props.alt} width={props.width} />
+          <button
+            onClick={handleHeartClick}
+            onMouseOver={handleMouseOver}>🤍</button>
+        </div>
+      );
+    }
+
+
+    const app = (
+      <div>
+        <Title>1번째 고양이</Title>
+        <Title>2번째 고양이</Title>
+        <SubmitForm />
+        <MainCard src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" alt="고양이" width="400" />
+        <Favorites />
+      </div>
+    );
+
+
+    const root = document.querySelector("#app");
+
+    ReactDOM.render(app, root);
+
+
+  </script>
+</body>
+
+</html>
+
+<!-- 
+  // 중괄호 안에 자바스크립트 사용
+
+    const FOO = "hello world!";
+
+    function foo() {
+      return 1;
+    }
+
+  const element = (
+     {1 + 2}
+     {FOO === "hello world!" ? 'true' : 'false'}
+     {FOO}
+     {foo()}
+  )
+-->
