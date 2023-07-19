@@ -37,27 +37,56 @@
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="resources/utils.js"></script>
 
   <script type="text/babel">
     console.log("야옹");
 
 
     const Title = (props) => {
-      <h1>{props.children}</h1>
+      return (
+        <h1>{props.children}</h1>
+      )
     }
 
-    const SubmitForm = () => {
-      <form>
-        <input type="text" name="name" placeholder="영어 대사를 입력해주세요" />
-        <button type="submit">생성</button>
-      </form>
-    }
+    const SubmitForm = ({ updateMainCat }) => {
+      // const counterState = React.useState(1);
+      // const counter = counterState[0];
+      // const setCounter = counterState[1];
+      // >> const [counter, setCounter] = React.useState(1);
 
-    const catItem = (
-      <li>
-        <img src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" />
-      </li>
-    );
+      const [value, setValue] = React.useState('');
+      const [errorMessage, setErrorMessage] = React.useState('');
+
+      function handleInputChange(e) {
+        const userValue = e.target.value;
+
+        setValue(userValue.toUpperCase());
+        includesHangul(userValue) ? setErrorMessage('한글은 입력할 수 없습니다.') : setErrorMessage('');
+      }
+
+      function handleFormSubmit(e) {
+        e.preventDefault();
+
+        if (e.target.value === '') {
+          setErrorMessage('빈 값은 전송할 수 없습니다.');
+          return;
+        } else {
+          setErrorMessage('');
+          updateMainCat();
+        }
+      }
+
+      return (
+        <form onSubmit={handleFormSubmit}>
+          <input type="text" name="name" placeholder="영어 대사를 입력해주세요"
+            onChange={handleInputChange}
+            value={value} />
+          <p style={{ color: "red" }}>{errorMessage}</p>
+          <button type="submit">생성</button>
+        </form>
+      )
+    }
 
     function CatItem(props) {
       return (
@@ -67,20 +96,48 @@
       )
     }
 
-    function Favorites() {
+    function Favorites({ favorites }) {
+
       return (
         <ul className="favorites">
-          <CatItem img="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" />
-          <CatItem img="https://cataas.com/cat/BxqL2EjFmtxDkAm2/says/inflearn" />
+          {favorites.map(cat =>
+            <CatItem img={cat} key={cat} />
+          )}
         </ul>
-      )
+      );
     }
 
     const MainCard = (props) => {
+      return (
+        <div className="main-card">
+          <img src={props.src} alt={props.alt} width={props.width} />
+          <button
+            onClick={props.onHeartClick}
+            onMouseOver={props.onMouseOver}>🤍</button>
+        </div>
+      );
+    }
 
-      // handel ~ Click << 리액트 관례
+
+    const App = () => {
+
+      const [counter, setCounter] = React.useState(jsonLocalStorage.getItem("counter"));
+      const [mainCardSrc, setMainCardSrc] = React.useState(CAT1);
+      const [favorites, setFavorite] = React.useState(jsonLocalStorage.getItem("favorites") || []);
+
+      function updateMainCat(e) {
+        setMainCardSrc(CAT2);
+
+        const nextCounter = counter + 1;
+
+        setCounter(nextCounter);
+        jsonLocalStorage.setItem("counter", nextCounter)
+      }
+
       function handleHeartClick() {
-        console.log("dd")
+        const nextFavorites = [...favorites, mainCardSrc];
+        setFavorite(nextFavorites);  // CAT1, CAT2, CAT3
+        jsonLocalStorage.setItem("favorites", nextFavorites);
       }
 
       function handleMouseOver() {
@@ -88,30 +145,23 @@
       }
 
       return (
-        <div className="main-card">
-          <img src={props.src} alt={props.alt} width={props.width} />
-          <button
-            onClick={handleHeartClick}
-            onMouseOver={handleMouseOver}>🤍</button>
+        <div>
+          <Title>{counter}번째 고양이</Title>
+          <SubmitForm updateMainCat={updateMainCat} />
+          <MainCard src={mainCardSrc}
+            alt="고양이"
+            width="400"
+            onHeartClick={handleHeartClick}
+            onMouseOver={handleMouseOver} />
+          <Favorites favorites={favorites} />
         </div>
-      );
-    }
-
-
-    const app = (
-      <div>
-        <Title>1번째 고양이</Title>
-        <Title>2번째 고양이</Title>
-        <SubmitForm />
-        <MainCard src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" alt="고양이" width="400" />
-        <Favorites />
-      </div>
-    );
+      )
+    };
 
 
     const root = document.querySelector("#app");
 
-    ReactDOM.render(app, root);
+    ReactDOM.render(<App />, root);
 
 
   </script>
@@ -134,4 +184,9 @@
      {FOO}
      {foo()}
   )
+
+  /**
+       * 핸들러 함수 >> handle ~
+       * 핸들을 props로 넘긴다 >> on ~ 
+       * **/
 -->
