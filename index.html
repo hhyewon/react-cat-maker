@@ -68,12 +68,12 @@
       function handleFormSubmit(e) {
         e.preventDefault();
 
-        if (e.target.value === '') {
+        if (value === '') {
           setErrorMessage('빈 값은 전송할 수 없습니다.');
           return;
         } else {
           setErrorMessage('');
-          updateMainCat();
+          updateMainCat(value);
         }
       }
 
@@ -98,6 +98,11 @@
 
     function Favorites({ favorites }) {
 
+      if (favorites.length == 0) {
+        return <div> 사진 위 하트를 눌러 고양이 사진을 저장해봐요! </div>
+      }
+
+
       return (
         <ul className="favorites">
           {favorites.map(cat =>
@@ -108,12 +113,15 @@
     }
 
     const MainCard = (props) => {
+      // const [heart, setHeart] = React.useState(EMPTY_HEART);
+      const heartIcon = props.alreadyFavorites ? FULL_HEART : EMPTY_HEART;
+
       return (
         <div className="main-card">
           <img src={props.src} alt={props.alt} width={props.width} />
           <button
             onClick={props.onHeartClick}
-            onMouseOver={props.onMouseOver}>🤍</button>
+            onMouseOver={props.onMouseOver}>{heartIcon}</button>
         </div>
       );
     }
@@ -121,17 +129,39 @@
 
     const App = () => {
 
-      const [counter, setCounter] = React.useState(jsonLocalStorage.getItem("counter"));
+      const [counter, setCounter] = React.useState(() => {
+        return jsonLocalStorage.getItem("counter");
+      });
       const [mainCardSrc, setMainCardSrc] = React.useState(CAT1);
-      const [favorites, setFavorite] = React.useState(jsonLocalStorage.getItem("favorites") || []);
+      const [favorites, setFavorite] = React.useState(() => {
+        return jsonLocalStorage.getItem("favorites") || [];
+      });
 
-      function updateMainCat(e) {
-        setMainCardSrc(CAT2);
+      const alreadyFavorites = favorites.includes(mainCardSrc);
 
-        const nextCounter = counter + 1;
+      async function setInitialCat() {
+        const newCat = await fetchCat('First Cat');
+        setMainCardSrc(newCat);
+      }
 
-        setCounter(nextCounter);
-        jsonLocalStorage.setItem("counter", nextCounter)
+      // 내가 원하는 시점에만 함수를 호출하고 싶을 때 사용
+      // [] << 컴포넌트가 나타날 때만 호출
+      // [counter] << counter가 변경될 때 마다 호출
+      React.useEffect(() => {
+        setInitialCat();
+      }, []);
+
+
+      async function updateMainCat(value) {
+        const newCat = await fetchCat(value);
+        setMainCardSrc(newCat);
+
+
+        setCounter((prev) => {
+          const nextCounter = prev + 1;
+          jsonLocalStorage.setItem("counter", nextCounter)
+          return nextCounter;
+        });
       }
 
       function handleHeartClick() {
@@ -146,11 +176,12 @@
 
       return (
         <div>
-          <Title>{counter}번째 고양이</Title>
+          <Title>{counter == null ? `` : counter + `번째 `}고양이</Title>
           <SubmitForm updateMainCat={updateMainCat} />
           <MainCard src={mainCardSrc}
             alt="고양이"
             width="400"
+            alreadyFavorites={alreadyFavorites}
             onHeartClick={handleHeartClick}
             onMouseOver={handleMouseOver} />
           <Favorites favorites={favorites} />
@@ -189,4 +220,10 @@
        * 핸들러 함수 >> handle ~
        * 핸들을 props로 넘긴다 >> on ~ 
        * **/
+
+
+
+  //  React.useState ==> [0]: 상태명, [1]: 상태 변경 함수명
+  //  >>> const [상태명, 상태 변경 함수명] = React.useState(초기값);
+
 -->
